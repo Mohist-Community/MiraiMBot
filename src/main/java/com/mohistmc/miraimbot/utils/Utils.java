@@ -30,7 +30,6 @@ public class Utils {
     
     public static void sendGroupMessage(Group sender, MessageChain messages) {
             sender.sendMessage(messages);
-        }
     }
     
     public static void sendGroupMessage(Group sender, String message) {
