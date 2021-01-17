@@ -5,6 +5,7 @@ import com.mohistmc.miraimbot.cmds.manager.ConsoleSender;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.UserOrBot;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
@@ -25,6 +26,15 @@ public class Utils {
 
     public static void sendMessage(UserOrBot sender, String message) {
         sendMessage(sender, MessageUtils.newChain(new PlainText(message)));
+    }
+    
+    public static void sendGroupMessage(Group sender, MessageChain messages) {
+            sender.sendMessage(messages);
+        }
+    }
+    
+    public static void sendGroupMessage(Group sender, String message) {
+        sendGroupMessage(sender, MessageUtils.newChain(new PlainText(message)));
     }
 
     public static BotConfiguration defaultConfig() {
