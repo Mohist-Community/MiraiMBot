@@ -28,12 +28,12 @@ public class Utils {
         sendMessage(sender, MessageUtils.newChain(new PlainText(message)));
     }
     
-    public static void sendGroupMessage(Group sender, MessageChain messages) {
+    public static void sendMessage(Group sender, MessageChain messages) {
         sender.sendMessage(messages);
     }
     
     public static void sendMessage(Group sender, String message) {
-        sendGroupMessage(sender, MessageUtils.newChain(new PlainText(message)));
+        sendMessage(sender, MessageUtils.newChain(new PlainText(message)));
     }
 
     public static BotConfiguration defaultConfig() {
