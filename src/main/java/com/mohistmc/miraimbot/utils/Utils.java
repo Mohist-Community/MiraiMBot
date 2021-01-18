@@ -27,14 +27,6 @@ public class Utils {
     public static void sendMessage(UserOrBot sender, String message) {
         sendMessage(sender, MessageUtils.newChain(new PlainText(message)));
     }
-    
-    public static void sendMessage(Group sender, MessageChain messages) {
-        sender.sendMessage(messages);
-    }
-    
-    public static void sendMessage(Group sender, String message) {
-        sendMessage(sender, MessageUtils.newChain(new PlainText(message)));
-    }
 
     public static BotConfiguration defaultConfig() {
         BotConfiguration botConfiguration = new BotConfiguration() {
