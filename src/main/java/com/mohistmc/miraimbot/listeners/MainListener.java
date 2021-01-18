@@ -1,50 +1,25 @@
 package com.mohistmc.miraimbot.listeners;
 
-import com.mohistmc.miraimbot.cmds.manager.CommandManager;
-import com.mohistmc.miraimbot.cmds.manager.ConsoleSender;
-import com.mohistmc.miraimbot.events.ConsoleMessageEvent;
-import com.mohistmc.miraimbot.utils.LogUtil;
-import kotlin.coroutines.CoroutineContext;
+import com.mohistmc.miraimbot.command.CommandManager;
+import com.mohistmc.miraimbot.config.ConfigManager;
 import net.mamoe.mirai.event.EventHandler;
-import net.mamoe.mirai.event.Listener;
-import net.mamoe.mirai.event.ListeningStatus;
+import net.mamoe.mirai.event.EventPriority;
 import net.mamoe.mirai.event.SimpleListenerHost;
-import net.mamoe.mirai.event.events.FriendMessageEvent;
-import net.mamoe.mirai.event.events.GroupMessageEvent;
-import org.jetbrains.annotations.NotNull;
+import net.mamoe.mirai.event.events.MessageEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MainListener extends SimpleListenerHost {
+    public static final MainListener INSTANCE = new MainListener();
+    private static final Logger log = LogManager.getLogger("MainListener");
 
-    @EventHandler(priority = Listener.EventPriority.HIGHEST)
-    public ListeningStatus onGroupMessage(GroupMessageEvent event) {
-        String content = event.getMessage().contentToString();
-        if (content.startsWith(LogUtil.command)) {
-            CommandManager.call(event.getMessage(), event.getSender());
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMessage(MessageEvent event) {
+        String prefix = ConfigManager.getConfig().getString(ConfigManager.path_command_prefix);
+        if (event.getMessage().contentToString().startsWith(prefix)) {
+            log.debug(event.getMessage().contentToString());
+            CommandManager.parseAndCall(event);
             event.intercept();
         }
-        return ListeningStatus.LISTENING;
     }
-
-    @EventHandler(priority = Listener.EventPriority.HIGHEST)
-    public ListeningStatus onFriendMessage(FriendMessageEvent event) {
-        String content = event.getMessage().contentToString();
-        if (content.startsWith(LogUtil.command)) {
-            CommandManager.call(event.getMessage(), event.getSender());
-            event.intercept();
-        }
-        return ListeningStatus.LISTENING;
-    }
-
-    @EventHandler(priority = Listener.EventPriority.HIGHEST)
-    public ListeningStatus onConsoleMessage(ConsoleMessageEvent event) {
-        CommandManager.call(event.getMessage(), ConsoleSender.INSTANCE);
-        return ListeningStatus.LISTENING;
-    }
-
-
-    @Override
-    public void handleException(@NotNull CoroutineContext context, @NotNull Throwable exception) {
-        throw new RuntimeException("在事件处理中发生异常", exception);
-    }
-
 }

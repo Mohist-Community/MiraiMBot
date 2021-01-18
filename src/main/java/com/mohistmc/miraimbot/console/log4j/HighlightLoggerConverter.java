@@ -25,7 +25,6 @@ package com.mohistmc.miraimbot.console.log4j;
 
 import com.mohistmc.miraimbot.utils.ANSIColorUtils;
 import net.minecrell.terminalconsole.TerminalConsoleAppender;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -49,17 +48,12 @@ import java.util.List;
  *
  * <p><b>Example usage:</b> {@code %highlightError{%level: %message}}</p>
  */
-@Plugin(name = "highlightLevel", category = PatternConverter.CATEGORY)
-@ConverterKeys({"highlightLevel"})
+@Plugin(name = "highlightLogger", category = PatternConverter.CATEGORY)
+@ConverterKeys({"highlightLogger"})
 @PerformanceSensitive("allocation")
-public final class HighlightLevelConverter extends LogEventPatternConverter {
+public final class HighlightLoggerConverter extends LogEventPatternConverter {
 
     private static final String ANSI_RESET = "\u001B[39;0m";
-    private static final String ANSI_ERROR = getError();
-    private static final String ANSI_WARN = getWarn();
-    private static final String ANSI_INFO = getInfo();
-    private static final String ANSI_FATAL = getFatal();
-    private static final String ANSI_TRACE = getTrace();
 
     private final List<PatternFormatter> formatters;
 
@@ -68,31 +62,16 @@ public final class HighlightLevelConverter extends LogEventPatternConverter {
      *
      * @param formatters The pattern formatters to generate the text to highlight
      */
-    protected HighlightLevelConverter(List<PatternFormatter> formatters) {
-        super("highlightLevel", null);
+    protected HighlightLoggerConverter(List<PatternFormatter> formatters) {
+        super("highlightLogger", null);
         this.formatters = formatters;
     }
 
     @Override
     public void format(LogEvent event, StringBuilder toAppendTo) {
         if (TerminalConsoleAppender.isAnsiSupported()) {
-            Level level = event.getLevel();
-            if (level.isMoreSpecificThan(Level.ERROR)) {
-                format(ANSI_ERROR, event, toAppendTo);
-                return;
-            } else if (level.isMoreSpecificThan(Level.WARN)) {
-                format(ANSI_WARN, event, toAppendTo);
-                return;
-            } else if (level.isMoreSpecificThan(Level.INFO)) {
-                format(ANSI_INFO, event, toAppendTo);
-                return;
-            } else if (level.isMoreSpecificThan(Level.FATAL)) {
-                format(ANSI_FATAL, event, toAppendTo);
-                return;
-            } else if (level.isMoreSpecificThan(Level.TRACE)) {
-                format(ANSI_TRACE, event, toAppendTo);
-                return;
-            }
+            format(ANSIColorUtils.getColor("9",""), event, toAppendTo);
+            return;
         }
 
         //noinspection ForLoopReplaceableByForEach
@@ -138,7 +117,7 @@ public final class HighlightLevelConverter extends LogEventPatternConverter {
      * @param options The pattern options
      * @return The new instance
      */
-    public static HighlightLevelConverter newInstance(Configuration config, String[] options) {
+    public static HighlightLoggerConverter newInstance(Configuration config, String[] options) {
         if (options.length != 1) {
             LOGGER.error("Incorrect number of options on highlightError. Expected 1 received " + options.length);
             return null;
@@ -150,7 +129,7 @@ public final class HighlightLevelConverter extends LogEventPatternConverter {
 
         PatternParser parser = PatternLayout.createPatternParser(config);
         List<PatternFormatter> formatters = parser.parse(options[0]);
-        return new HighlightLevelConverter(formatters);
+        return new HighlightLoggerConverter(formatters);
     }
 
 

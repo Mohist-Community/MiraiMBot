@@ -1,6 +1,0 @@
-version: 0.1
-qq: 0L
-password: ''
-message:
-  # 设置一条消息的最大长度，超过长度将继续事件而不处理指令
-  max: 300

@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 实现监听
+ * 实现插件的注册
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.SOURCE)

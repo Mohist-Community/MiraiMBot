@@ -1,5 +1,6 @@
 /*
- * TerminalConsoleAppender
+ * The MIT License (MIT)
+ *
  * Copyright (c) 2017 Minecrell <https://github.com/Minecrell>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,28 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package com.mohistmc.miraimbot.console.log4j;
 
+import com.mohistmc.miraimbot.command.CommandManager;
 import com.mohistmc.miraimbot.utils.ANSIColorUtils;
-import java.util.List;
+import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.pattern.ConverterKeys;
+import org.apache.logging.log4j.core.pattern.HighlightConverter;
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
 import org.apache.logging.log4j.core.pattern.PatternConverter;
 import org.apache.logging.log4j.core.pattern.PatternFormatter;
 import org.apache.logging.log4j.core.pattern.PatternParser;
 import org.apache.logging.log4j.util.PerformanceSensitive;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
+/**
+ * A simplified version of {@link HighlightConverter} that uses
+ * {@link TerminalConsoleAppender} to detect if Ansi escape codes can be used
+ * to highlight errors and warnings in the console.
+ *
+ * <p>If configured, it will mark all logged errors with a red color and all
+ * warnings with a yellow color. It can be only used together with
+ * {@link TerminalConsoleAppender}.</p>
+ *
+ * <p>{@link TerminalConsoleAppender#ANSI_OVERRIDE_PROPERTY} may be used
+ * to force the use of ANSI colors even in unsupported environments.</p>
+ *
+ * <p><b>Example usage:</b> {@code %highlightError{%level: %message}}</p>
+ */
 @Plugin(name = "highlightMsg", category = PatternConverter.CATEGORY)
 @ConverterKeys({"highlightMsg"})
 @PerformanceSensitive("allocation")
-public class HighlightMsgConverter extends LogEventPatternConverter {
+public final class HighlightMsgConverter extends LogEventPatternConverter {
+
     private static final String ANSI_RESET = "\u001B[39;0m";
     private static final String ANSI_ERROR = getError();
     private static final String ANSI_WARN = getWarn();
@@ -56,80 +74,67 @@ public class HighlightMsgConverter extends LogEventPatternConverter {
      *
      * @param formatters The pattern formatters to generate the text to highlight
      */
-    protected HighlightMsgConverter(List<PatternFormatter> formatters)
-    {
+    protected HighlightMsgConverter(List<PatternFormatter> formatters) {
         super("highlightMsg", null);
         this.formatters = formatters;
     }
 
     @Override
-    public void format(LogEvent event, StringBuilder toAppendTo)
-    {
-        Level level = event.getLevel();
-        if (level.isMoreSpecificThan(Level.ERROR))
-        {
-            format(ANSI_ERROR, event, toAppendTo);
-            return;
-        }
-        else if (level.isMoreSpecificThan(Level.WARN))
-        {
-            format(ANSI_WARN, event, toAppendTo);
-            return;
-        }
-        else if (level.isMoreSpecificThan(Level.INFO))
-        {
-            format(ANSI_INFO, event, toAppendTo);
-            return;
-        }
-        else if (level.isMoreSpecificThan(Level.FATAL))
-        {
-            format(ANSI_FATAL, event, toAppendTo);
-            return;
-        }
-        else if (level.isMoreSpecificThan(Level.TRACE))
-        {
-            format(ANSI_TRACE, event, toAppendTo);
-            return;
+    public void format(LogEvent event, StringBuilder toAppendTo) {
+        if (TerminalConsoleAppender.isAnsiSupported()) {
+            Level level = event.getLevel();
+            if (level.isMoreSpecificThan(Level.ERROR)) {
+                format(ANSI_ERROR, event, toAppendTo);
+                if (!CommandManager.console) toAppendTo.append("\n");
+                return;
+            } else if (level.isMoreSpecificThan(Level.WARN)) {
+                format(ANSI_WARN, event, toAppendTo);
+                if (!CommandManager.console) toAppendTo.append("\n");
+                return;
+            } else if (level.isMoreSpecificThan(Level.INFO)) {
+                format(ANSI_INFO, event, toAppendTo);
+                if (!CommandManager.console) toAppendTo.append("\n");
+                return;
+            } else if (level.isMoreSpecificThan(Level.FATAL)) {
+                format(ANSI_FATAL, event, toAppendTo);
+                if (!CommandManager.console) toAppendTo.append("\n");
+                return;
+            } else if (level.isMoreSpecificThan(Level.TRACE)) {
+                format(ANSI_TRACE, event, toAppendTo);
+                if (!CommandManager.console) toAppendTo.append("\n");
+                return;
+            }
         }
 
         //noinspection ForLoopReplaceableByForEach
-        for (int i = 0, size = formatters.size(); i < size; i++)
-        {
+        for (int i = 0, size = formatters.size(); i < size; i++) {
             formatters.get(i).format(event, toAppendTo);
         }
     }
 
-    private void format(String style, LogEvent event, StringBuilder toAppendTo)
-    {
+    private void format(String style, LogEvent event, StringBuilder toAppendTo) {
         int start = toAppendTo.length();
         toAppendTo.append(style);
         int end = toAppendTo.length();
 
         //noinspection ForLoopReplaceableByForEach
-        for (int i = 0, size = formatters.size(); i < size; i++)
-        {
+        for (int i = 0, size = formatters.size(); i < size; i++) {
             formatters.get(i).format(event, toAppendTo);
         }
 
-        if (toAppendTo.length() == end)
-        {
+        if (toAppendTo.length() == end) {
             // No content so we don't need to append the ANSI escape code
             toAppendTo.setLength(start);
-        }
-        else
-        {
+        } else {
             // Append reset code after the line
             toAppendTo.append(ANSI_RESET);
         }
     }
 
     @Override
-    public boolean handlesThrowable()
-    {
-        for (final PatternFormatter formatter : formatters)
-        {
-            if (formatter.handlesThrowable())
-            {
+    public boolean handlesThrowable() {
+        for (final PatternFormatter formatter : formatters) {
+            if (formatter.handlesThrowable()) {
                 return true;
             }
         }
@@ -137,24 +142,20 @@ public class HighlightMsgConverter extends LogEventPatternConverter {
     }
 
     /**
-     * Gets a new instance of the {@link HighlightMsgConverter} with the
+     * Gets a new instance of the {@link net.minecrell.terminalconsole.HighlightErrorConverter} with the
      * specified options.
      *
-     * @param config The current configuration
+     * @param config  The current configuration
      * @param options The pattern options
      * @return The new instance
      */
-    @Nullable
-    public static HighlightMsgConverter newInstance(Configuration config, String[] options)
-    {
-        if (options.length != 1)
-        {
-            LOGGER.error("Incorrect number of options on highlightMsg. Expected 1 received " + options.length);
+    public static HighlightMsgConverter newInstance(Configuration config, String[] options) {
+        if (options.length != 1) {
+            LOGGER.error("Incorrect number of options on highlightError. Expected 1 received " + options.length);
             return null;
         }
-        if (options[0] == null)
-        {
-            LOGGER.error("No pattern supplied on highlightMsg");
+        if (options[0] == null) {
+            LOGGER.error("No pattern supplied on highlightError");
             return null;
         }
 
@@ -163,27 +164,25 @@ public class HighlightMsgConverter extends LogEventPatternConverter {
         return new HighlightMsgConverter(formatters);
     }
 
-    public static String geterror() {
-        return ANSIColorUtils.getColor("", "\u001B[31;1m");
-    }
 
     public static String getError() {
-        return ANSIColorUtils.getColor("", "\u001B[31;1m");
+        return ANSIColorUtils.getColor("c", "\u001B[31;1m");
     }
 
     public static String getWarn() {
-        return ANSIColorUtils.getColor("", "\u001B[33;1m");
+        return ANSIColorUtils.getColor("e", "\u001B[33;1m");
     }
 
     public static String getInfo() {
-        return ANSIColorUtils.getColor("", ANSI_RESET);
+        return ANSIColorUtils.getColor("7", "\u001B[32;1m");
     }
 
     public static String getFatal() {
-        return ANSIColorUtils.getColor("", "\u001B[31;1m");
+        return ANSIColorUtils.getColor("d", "\u001B[31;1m");
     }
 
     public static String getTrace() {
-        return ANSIColorUtils.getColor("", "\u001B[31;1m");
+        return ANSIColorUtils.getColor("9", "\u001B[31;1m");
     }
+
 }

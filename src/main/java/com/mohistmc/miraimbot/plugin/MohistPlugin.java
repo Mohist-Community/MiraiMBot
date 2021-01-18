@@ -1,45 +1,58 @@
 package com.mohistmc.miraimbot.plugin;
 
-import com.mohistmc.miraimbot.MiraiMBot;
-import com.mohistmc.miraimbot.cmds.manager.CommandExecutor;
-import com.mohistmc.miraimbot.cmds.manager.CommandManager;
-import com.mohistmc.miraimbot.console.log4j.MiraiMBotLog;
-import net.mamoe.mirai.event.Events;
-import net.mamoe.mirai.event.ListenerHost;
+import com.mohistmc.miraimbot.config.ConfigManager;
+import com.mohistmc.miraimbot.utils.Utils;
+import com.mohistmc.yaml.file.YamlConfiguration;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MohistPlugin {
+import java.io.File;
+import java.util.List;
+import java.util.jar.JarFile;
+
+public class MohistPlugin extends Utils {
+
+    @Getter
+    public String name;
+    @Getter
+    public String version;
+    @Getter
+    public String description;
+    @Getter
+    public ClassLoader classLoader;
+    @Getter
+    public JarFile sourceFile;
+    @Getter
+    public File dataDir;
+    public YamlConfiguration config;
+    @Getter
+    public List<String> authors;
 
     public void onLoad() {
-
     }
 
     public void onEnable() {
-
     }
 
     public void onDisable() {
-
     }
 
     public Logger getLogger() {
-        return MiraiMBotLog.LOGGER;
+        return LogManager.getLogger(getName());
     }
 
-    public void registerEvents(ListenerHost listenerHost) {
-        Events.registerEvents(MiraiMBot.bot, listenerHost);
+    public YamlConfiguration getConfig() {
+        if (config == null) config = ConfigManager.getConfig(this);
+        return config;
     }
 
-    public void registerCommands(CommandExecutor... newInstance) {
-        CommandManager.registers(newInstance);
+    public void saveDefaultConfig() {
+        ConfigManager.saveDefault(this);
     }
 
-    public void sendGroupMessage(Long group, String msg) {
-        MiraiMBot.bot.getGroup(group).sendMessage(msg);
+    public void saveConfig() {
+        if (config == null) getConfig();
+        ConfigManager.save(this);
     }
-
-    public void sendFriendMessage(Long firend, String msg) {
-        MiraiMBot.bot.getFriend(firend).sendMessage(msg);
-    }
-
 }
