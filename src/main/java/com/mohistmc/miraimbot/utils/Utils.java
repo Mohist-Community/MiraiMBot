@@ -5,7 +5,6 @@ import com.mohistmc.miraimbot.cmds.manager.ConsoleSender;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.UserOrBot;
-import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
@@ -34,7 +33,7 @@ public class Utils {
                 fileBasedDeviceInfo("deviceInfo.json");
             }
         };
-       // botConfiguration.noNetworkLog();
+        // botConfiguration.noNetworkLog();
         //botConfiguration.noBotLog();
         botConfiguration.setProtocol(BotConfiguration.MiraiProtocol.ANDROID_PAD);
         return botConfiguration;
