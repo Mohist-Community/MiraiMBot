@@ -33,7 +33,7 @@ public class Utils {
                 fileBasedDeviceInfo("deviceInfo.json");
             }
         };
-        // botConfiguration.noNetworkLog();
+       // botConfiguration.noNetworkLog();
         //botConfiguration.noBotLog();
         botConfiguration.setProtocol(BotConfiguration.MiraiProtocol.ANDROID_PAD);
         return botConfiguration;
