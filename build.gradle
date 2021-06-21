@@ -1,14 +1,7 @@
-buildscript {
-    repositories {
-        maven {
-            url 'https://maven.aliyun.com/repository/gradle-plugin'
-        }
-    }
-}
-
 plugins {
     id 'java'
     id 'idea'
+    id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm' version '1.5.20-RC' // 请确保添加 Kotlin，至少使用 1.5 版本
     id "edu.sc.seis.launch4j" version "2.5.0"
 }
@@ -80,6 +73,26 @@ task buildSourceJar(type: Jar) {
 //only java8
 launch4j {
     mainClassName = "com.mohistmc.miraimbot.MiraiMBot"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+        }
+    }
+
+    repositories {
+        mavenLocal()
+
+        maven {
+            name = "Mohist-Maven"
+            setUrl("file:/maven/")
+        }
+    }
 }
 
 copyLibraries.dependsOn clean
