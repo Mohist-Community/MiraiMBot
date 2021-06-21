@@ -1,5 +1,6 @@
 package com.mohistmc.miraimbot;
 
+import com.mohistmc.miraimbot.command.executors.VersionCommand;
 import com.mohistmc.miraimbot.config.ConfigManager;
 import com.google.common.base.Strings;
 import com.mohistmc.miraimbot.command.CommandManager;
@@ -51,6 +52,7 @@ public class MiraiMBot {
                 CommandManager.init();
                 CommandManager.register(new HelpCommand(), "?", "菜单", "帮助");
                 CommandManager.register(new AddOpCommand());
+                CommandManager.register(new VersionCommand());
             } else {
                 log.warn("您关闭了默认的指令系统，将不会注册插件指令。");
             }

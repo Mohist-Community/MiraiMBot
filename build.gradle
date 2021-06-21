@@ -10,35 +10,17 @@ plugins {
     id 'java'
     id 'idea'
     id 'org.jetbrains.kotlin.jvm' version '1.5.20-RC' // 请确保添加 Kotlin，至少使用 1.5 版本
+    id "edu.sc.seis.launch4j" version "2.5.0"
 }
 
 group 'com.mohistmc'
 version '0.4-SNAPSHOT'
-
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 repositories {
-
-    maven {
-        credentials {
-            username '5eca92c3723771c6a5f78860'
-            password 'RZFjd(j-TpwH'
-        }
-        url 'https://packages.aliyun.com/maven/repository/2004385-snapshot-EDtVE0/'
-    }
-    maven {
-        url 'https://maven.aliyun.com/repository/public/'
-    }
-    maven {
-        url 'https://maven.mohistmc.com/'
-    }
-    maven {
-        credentials {
-            username '5eca92c3723771c6a5f78860'
-            password 'RZFjd(j-TpwH'
-        }
-        url 'https://packages.aliyun.com/maven/repository/2004385-release-A6mrLn/'
-    }
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url 'https://maven.mohistmc.com/' }
+    maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
 }
 
 dependencies {
@@ -52,7 +34,6 @@ dependencies {
     compile 'org.jline:jline-terminal-jansi:3.12.1'
     compile 'org.jline:jline-terminal-jna:3.12.1'
     compile 'org.jline:jline-reader:3.12.1'
-
 
     compile 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
@@ -96,7 +77,10 @@ task buildSourceJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-
+//only java8
+launch4j {
+    mainClassName = "com.mohistmc.miraimbot.MiraiMBot"
+}
 
 copyLibraries.dependsOn clean
 buildSourceJar.dependsOn copyLibraries
