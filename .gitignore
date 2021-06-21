@@ -30,4 +30,6 @@
 **/.classpath
 *.project
 
-/deviceInfo.json
+/device.json
+/config.yml
+/cache/

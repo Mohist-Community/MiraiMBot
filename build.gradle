@@ -8,7 +8,8 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.21' // 请确保添加 Kotlin，至少使用 1.4.0 版本
+    id 'idea'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.20-RC' // 请确保添加 Kotlin，至少使用 1.5 版本
 }
 
 group 'com.mohistmc'
@@ -30,6 +31,9 @@ repositories {
         url 'https://maven.aliyun.com/repository/public/'
     }
     maven {
+        url 'https://maven.mohistmc.com/'
+    }
+    maven {
         credentials {
             username '5eca92c3723771c6a5f78860'
             password 'RZFjd(j-TpwH'
@@ -39,36 +43,62 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    implementation 'net.mamoe:mirai-core:2.6.7'
+    compile 'net.mamoe:mirai-core:2.7-M1'
     //compile 'net.mamoe:mirai-login-solver-selenium:1.0-dev-10'
-    implementation 'com.alibaba:fastjson:1.2.75'
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'commons-io:commons-io:2.8.0'
-    implementation 'net.minecrell:terminalconsoleappender:1.2.0'
-    implementation 'org.jline:jline-terminal-jansi:3.12.1'
-    implementation 'org.jline:jline-terminal-jna:3.12.1'
-    implementation 'org.jline:jline-reader:3.12.1'
+    compile 'com.alibaba:fastjson:1.2.75'
+    compile 'com.google.code.gson:gson:2.8.6'
+    compile 'commons-io:commons-io:2.8.0'
+    compile 'net.minecrell:terminalconsoleappender:1.2.0'
+    compile 'org.jline:jline-terminal-jansi:3.12.1'
+    compile 'org.jline:jline-terminal-jna:3.12.1'
+    compile 'org.jline:jline-reader:3.12.1'
 
 
-    implementation 'org.projectlombok:lombok:1.18.8'
+    compile 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
-    implementation 'com.google.guava:guava:21.0'
-    implementation "com.mohistmc.yaml:Yaml:0.1"
-    implementation 'org.apache.logging.log4j:log4j-api:2.13.3'
-    implementation 'org.apache.logging.log4j:log4j-core:2.13.3'
-    implementation 'net.md-5:bungeecord-chat:1.12-SNAPSHOT'
+    compile 'com.google.guava:guava:21.0'
+    compile "com.mohistmc.yaml:Yaml:0.1"
+    compile 'org.apache.logging.log4j:log4j-api:2.13.3'
+    compile 'org.apache.logging.log4j:log4j-core:2.13.3'
+    compile 'net.md-5:bungeecord-chat:1.12-SNAPSHOT'
 }
 
 jar {
+    String someString = ''
+
+    configurations.runtime.each { someString = someString + " libraries//" + it.name }
     from {
-        configurations.compileClasspath.collect{zipTree(it)}
+        configurations.runtime.collect {
+            if (it.getName().contains("fastjson")
+                    || it.getName().contains("commons-io")
+                    || it.getName().contains("Yaml")
+            )
+                zipTree(it)
+        }
+
     }
     manifest {
         attributes("Manifest-Version": 1.0,
                 'Main-Class': 'com.mohistmc.miraimbot.MiraiMBot',
                 'Build-date': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'Build-by': 'lliiooll, MohistMC')
+                'Build-by': 'lliiooll, MohistMC',
+                'Class-Path': someString)
     }
 }
+
+task copyLibraries(type: Copy) {
+    from configurations.runtime
+    into('build/libs/libraries')
+}
+
+task buildSourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+
+
+copyLibraries.dependsOn clean
+buildSourceJar.dependsOn copyLibraries
+build.dependsOn buildSourceJar
