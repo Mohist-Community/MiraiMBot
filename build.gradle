@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'com.mohistmc'
-version '0.4-SNAPSHOT'
+version '0.4.1'
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 repositories {

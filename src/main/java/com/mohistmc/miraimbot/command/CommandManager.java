@@ -70,7 +70,7 @@ public class CommandManager {
                     executor.onlyOp = json.getBooleanValue("onlyOp");
                     executor.permissionEnable = json.getJSONObject("permission").getBooleanValue("enable");
                     executor.permission = json.getJSONObject("permission").getString("permission");
-                    executor.type = Command.Type.valueOf(json.getString("type"));
+                    executor.type = Command.Type.valueOf(json.getString("type") != null ? json.getString("type") : "ALL");
                     register(executor, json.getJSONArray("alias").toArray(new String[0]));
                 }
             } else {

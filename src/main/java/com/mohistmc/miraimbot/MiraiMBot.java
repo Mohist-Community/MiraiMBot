@@ -24,6 +24,8 @@ public class MiraiMBot {
     public static Bot instance;
     public static boolean command_enable;
     public static boolean permission_enable;
+    @Getter
+    public static final String version = "0.4.1";
 
 
     public static void main(String[] args) {
