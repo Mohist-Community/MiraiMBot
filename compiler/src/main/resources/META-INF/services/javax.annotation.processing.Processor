@@ -1,0 +1,3 @@
+com.mohistmc.miraimbot.processors.PluginProcessor
+com.mohistmc.miraimbot.processors.CommandProcessor
+com.mohistmc.miraimbot.processors.ListenerProcessor
