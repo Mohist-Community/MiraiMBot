@@ -1,2 +1,5 @@
 rootProject.name = 'miraimbot'
+include 'core'
+include 'annotations'
+include 'compiler'
 

@@ -1,0 +1,90 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.20-RC' // 请确保添加 Kotlin，至少使用 1.5 版本
+    id "edu.sc.seis.launch4j" version "2.5.0"
+}
+
+group 'com.mohistmc.miraimbot'
+version '0.4.1'
+
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+repositories {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        maven { url 'https://maven.mohistmc.com/' }
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    compile 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    compile "com.mohistmc.yaml:Yaml:0.1"
+    compile project(":annotations")
+    compile 'com.squareup:javapoet:1.8.0'
+    compile 'com.alibaba:fastjson:1.2.75'
+    compile 'commons-io:commons-io:2.8.0'
+
+}
+
+
+jar {
+    String someString = ''
+
+    configurations.runtime.each { someString = someString + " libraries//" + it.name }
+    from {
+        configurations.runtime.collect {
+            if (it.getName().contains("fastjson")
+                    || it.getName().contains("commons-io")
+                    || it.getName().contains("Yaml")
+            )
+                zipTree(it)
+        }
+
+    }
+    manifest {
+        attributes("Manifest-Version": 1.0,
+                'Main-Class': 'com.mohistmc.miraimbot.MiraiMBot',
+                'Build-date': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Build-by': 'MohistMC',
+                'Class-Path': someString)
+    }
+}
+
+task copyLibraries(type: Copy) {
+    from configurations.runtime
+    into('build/libs/libraries')
+}
+
+task buildSourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        maven {
+            name = "Mohist-Maven"
+            setUrl("file:/maven/")
+        }
+    }
+}
+
+copyLibraries.dependsOn clean
+buildSourceJar.dependsOn copyLibraries
+build.dependsOn buildSourceJar

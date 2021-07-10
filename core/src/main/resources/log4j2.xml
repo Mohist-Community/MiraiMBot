@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" packages="net.minecrell.terminalconsole,com.mohistmc.miraimbot.console.log4j">
+    <Appenders>
+        <TerminalConsole name="TerminalConsole">
+            <PatternLayout pattern="[%highlightTime{%d{HH:mm:ss}} %highlightLogger{%logger}/%highlightLevel{%level}]: %highlightMsg{%msg}%n" />
+        </TerminalConsole>
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.zip">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %replace{%msg}{(?i)\u00A7[0-9A-FK-OR]}{}%n" charset="UTF-8"/>
+            <DefaultRolloverStrategy max="20" fileIndex="min"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <OnStartupTriggeringPolicy/>
+            </Policies>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <Root level="all">
+            <filters>
+                <MarkerFilter marker="NETWORK_PACKETS" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </filters>
+            <AppenderRef ref="TerminalConsole" level="ALL" />
+            <AppenderRef ref="File" level="ALL"/>
+        </Root>
+    </Loggers>
+</Configuration>
